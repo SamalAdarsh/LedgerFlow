@@ -94,7 +94,7 @@ const createTransaction = async (req, res) => {
   if (balance < amount) {
     return res.status(400).json({
       message:
-        "Insufficient balance, Current balance is ${balance}, Requested amount is ${amount}",
+        `Insufficient balance, Current balance is ${balance}, Requested amount is ${amount}`,
     });
   }
 
@@ -114,7 +114,7 @@ const createTransaction = async (req, res) => {
             fromAccount,
             toAccount,
             amount,
-            idempotencyKeym,
+            idempotencyKey,
             status: "PENDING",
           },
         ],
@@ -156,10 +156,10 @@ const createTransaction = async (req, res) => {
 
     //Step 8: Mark Transaction "COMPLETED"
 
-    await transactionModel.findOneAndUpdate(
+    transaction = await transactionModel.findOneAndUpdate(
       { _id: transaction._id },
       { status: "COMPLETED" },
-      { session },
+      { session, new: true },
     );
 
     //Step 9: Commit MongoDB session
@@ -167,7 +167,7 @@ const createTransaction = async (req, res) => {
     await session.commitTransaction();
     session.endSession();
   } catch (err) {
-    return res.status.json({
+    return res.status(400).json({
       message:
         "Transaction is pending due to some issues, please retry after sometime",
     });
@@ -227,7 +227,7 @@ const createInitialFundsTransaction = async(req,res)=>{
     const session = await mongoose.startSession()
     session.startTransaction();
 
-    const transaction = new transactionModel.create({
+    const transaction = new transactionModel({
         fromAccount: fromUserAccount._id,
         toAccount,
         amount,
