@@ -2,7 +2,7 @@ const express = require('express');
 const authMiddleware = require('../middlewares/auth.middleware');
 const transactionController = require('../controllers/transaction.controller');
 
-const router = exress.Router();
+const router = express.Router();
 
 /**
  *  - POST /api/transactions/
